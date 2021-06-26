@@ -8,6 +8,7 @@ const SORT_ICON_CLASS = 'data-table__sort-icon';
 
 export default class DataTable {
 	is_table_empty;
+	is_data_loading;
 	table_id;
 	table_element;
 	thead_element;
@@ -23,6 +24,7 @@ export default class DataTable {
 		this.table_id = table_id;
 		this.table_element = document.getElementById(table_id);
 		this.thead_element = this.table_element.querySelector('.' + head_class);
+		this.is_data_loading = false;
 	}
 
 	async renderTableBody() {
@@ -31,7 +33,11 @@ export default class DataTable {
 
 		this.removeTbodyElement();
 
-		if (this.is_table_empty) {
+		if (this.is_data_loading) {
+            const loading_row = this.createLoadingRow();
+			table_body.appendChild(loading_row);
+		}
+		else if (this.is_table_empty) {
 			const empty_row = this.createEmptyRow();
 			table_body.appendChild(empty_row);
 		} else {
@@ -57,6 +63,8 @@ export default class DataTable {
 			this.clearTable();
 			console.log(err);
 		}
+
+		this.renderTableBody();
 	}
 
 	removeRow(id) {
@@ -81,6 +89,11 @@ export default class DataTable {
 		this.removeTbodyElement();
 		this.is_table_empty = true;
 		this.table_rows = null;
+		this.do_sort = false;
+		this.sort_type = null;
+		this.sort_direction = null;
+		this.is_data_loading = false;
+		this.displaySortIcon();
 
 		this.renderTableBody();
 	}
@@ -89,6 +102,14 @@ export default class DataTable {
 		let empty_row = document.createElement('tr');
 		let empty_cell = document.createElement('td');
 		empty_cell.innerHTML = 'Нет данных';
+		empty_row.appendChild(empty_cell);
+		return empty_row;
+	}
+
+	createLoadingRow() {
+		let empty_row = document.createElement('tr');
+		let empty_cell = document.createElement('td');
+		empty_cell.innerHTML = 'Загрузка...';
 		empty_row.appendChild(empty_cell);
 		return empty_row;
 	}
@@ -196,15 +217,14 @@ export default class DataTable {
 				}
 				return 0;
 			});
-		}
-        else if(this.sort_type === 'birth_year') {
+		} else if (this.sort_type === 'birth_year') {
 			this.table_rows.sort((row_a, row_b) => {
-                const year_num_a = +row_a.birth_year.replace(/[^\d.-]/g, '')
-                const year_num_b = +row_b.birth_year.replace(/[^\d.-]/g, '')
+				const year_num_a = +row_a.birth_year.replace(/[^\d.-]/g, '');
+				const year_num_b = +row_b.birth_year.replace(/[^\d.-]/g, '');
 
-                return asc_modifier * (year_num_a - year_num_b)
-            })
-        }
+				return asc_modifier * (year_num_a - year_num_b);
+			});
+		}
 	}
 
 	patchRowsFromData(data) {
@@ -221,5 +241,11 @@ export default class DataTable {
 				}
 			);
 		});
+	}
+
+	displayLoading(is_loading) {
+		this.is_data_loading = is_loading;
+
+		this.renderTableBody();
 	}
 }
