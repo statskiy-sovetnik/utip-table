@@ -2,6 +2,10 @@ body {
   background-color: #fefefe;
 }
 
+button {
+  cursor: pointer;
+}
+
 .page-container {
   width: 100%;
   max-width: 1400px;
@@ -23,6 +27,15 @@ body {
   position: relative;
   border: 1px solid grey;
 }
+.data-table .data-table__sort-icon {
+  margin-left: 10px;
+  height: 14px;
+  width: auto;
+  transform: rotate(0);
+}
+.data-table .data-table__sort-icon.icon_desc {
+  transform: rotate(180deg);
+}
 .data-table .data-table__head {
   display: block;
 }
@@ -37,6 +50,7 @@ body {
   height: 50px;
   padding: 0 15px;
   border: 1px solid grey;
+  cursor: pointer;
 }
 .data-table .data-table__body {
   display: block;

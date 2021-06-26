@@ -4,6 +4,7 @@ const main_table = new DataTable('main-table', 'data-table__head')
 const btn_get_data = document.getElementById('get-data-btn');
 const btn_clear_table = document.getElementById('clear-table-btn');
 
+main_table.setHeadSortHandlers()
 main_table.renderTableBody()
 
 btn_get_data.addEventListener('click', async () => {

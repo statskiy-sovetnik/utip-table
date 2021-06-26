@@ -50,7 +50,7 @@ export default class DataRow {
 		remove_btn.innerHTML = 'Удалить';
 		remove_btn.addEventListener('click', remove_row_handler);
 		remove_btn_cell.append(remove_btn);
-		remove_btn_cell.setAttribute('class', BODY_CELL_CLASS);
+		remove_btn_cell.setAttribute('class', BODY_CELL_CLASS + ' body-cell_remove-row');
 		return remove_btn_cell;
 	}
 }
