@@ -20,11 +20,13 @@ export default class DataTable {
 	do_sort;
 
 	constructor(table_id, head_class) {
-		this.is_table_empty = true;
 		this.table_id = table_id;
 		this.table_element = document.getElementById(table_id);
 		this.thead_element = this.table_element.querySelector('.' + head_class);
 		this.is_data_loading = false;
+
+		this.table_rows = this.getTableRowsFromStorage()
+        this.is_table_empty = this.table_rows.length === 0
 	}
 
 	async renderTableBody() {
@@ -34,10 +36,9 @@ export default class DataTable {
 		this.removeTbodyElement();
 
 		if (this.is_data_loading) {
-            const loading_row = this.createLoadingRow();
+			const loading_row = this.createLoadingRow();
 			table_body.appendChild(loading_row);
-		}
-		else if (this.is_table_empty) {
+		} else if (this.is_table_empty) {
 			const empty_row = this.createEmptyRow();
 			table_body.appendChild(empty_row);
 		} else {
@@ -59,6 +60,8 @@ export default class DataTable {
 			const rows = this.patchRowsFromData(data);
 			this.table_rows = rows;
 			this.is_table_empty = rows.length === 0;
+            this.saveTableRowsToStorage()
+
 		} catch (err) {
 			this.clearTable();
 			console.log(err);
@@ -75,6 +78,7 @@ export default class DataTable {
 			this.clearTable();
 		}
 
+        this.saveTableRowsToStorage()
 		this.renderTableBody();
 	}
 
@@ -94,6 +98,8 @@ export default class DataTable {
 		this.sort_direction = null;
 		this.is_data_loading = false;
 		this.displaySortIcon();
+
+		localStorage.removeItem('table-data');
 
 		this.renderTableBody();
 	}
@@ -242,6 +248,21 @@ export default class DataTable {
 			);
 		});
 	}
+
+    saveTableRowsToStorage() {
+        localStorage.setItem('table-data', JSON.stringify(this.table_rows))
+    }
+
+    getTableRowsFromStorage() {
+        let table_rows = []
+
+        if(localStorage.getItem('table-data')) {
+            const raw_data = JSON.parse(localStorage.getItem('table-data'))
+            table_rows = this.patchRowsFromData(raw_data) 
+        }
+        
+        return table_rows
+    }
 
 	displayLoading(is_loading) {
 		this.is_data_loading = is_loading;
