@@ -22,6 +22,7 @@ function scripts() {
 		.transform('babelify', {
 			presets: ['es2015'],
 			extensions: ['.js'],
+            plugins: ["babel-plugin-transform-class-properties"],
 		})
 		.bundle()
 		.pipe(source('app.bundle.js'))
@@ -47,7 +48,7 @@ function server() {
 
 function watchFiles(cb) {
 	watch(['./src/sass/**/*.scss'], gulp.series(styles));
-	watch(['./src/scripts/**/*.js'], gulp.series(scripts));
+	watch(['./src/js/**/*.js'], gulp.series(scripts));
 }
 
 exports.default = series(styles, scripts, watchFiles);
