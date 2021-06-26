@@ -52,6 +52,17 @@ export default class DataTable {
 		}
 	}
 
+	removeRow(id) {
+		this.table_rows = this.table_rows.filter((row) => {
+			return row.id !== id;
+		});
+        if(this.table_rows.length === 0) {
+            this.clearTable()
+        }
+
+		this.renderTableBody();
+	}
+
 	removeTbodyElement() {
 		if (this.tbody_element != undefined) {
 			this.tbody_element.remove();
@@ -76,13 +87,17 @@ export default class DataTable {
 	}
 
 	patchRowsFromData(data) {
-		return data.map((data_obj) => {
+		return data.map((data_obj, i) => {
 			return new DataRow(
+				i,
 				data_obj.name,
 				data_obj.height,
 				data_obj.hair_color,
 				data_obj.eye_color,
-				data_obj.birth_year
+				data_obj.birth_year,
+				() => {
+					this.removeRow.bind(this)(i);
+				}
 			);
 		});
 	}
