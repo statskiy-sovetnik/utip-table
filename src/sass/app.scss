@@ -1,41 +1,64 @@
+$cell_width: 260px;
+$scroll_width: 16px;
+$n_columns: 5;
 
 body {
-    background-color: #fefefe;
+	background-color: #fefefe;
 }
 
 .page-container {
-    width: 100%;
-    max-width: 1300px;
-    margin: 0 auto;
-    padding: 180px 50px 200px;
+	width: 100%;
+	max-width: 1400px;
+	margin: 0 auto;
+	padding: 180px 50px 200px;
 }
 
 #get-data-btn {
-    margin-right: 15px;
+	margin-right: 15px;
 }
 
 #main-table {
-    margin-top: 40px;
+	margin-top: 40px;
 }
 
 .data-table {
-    border-collapse: collapse;
-    width: 100%;
+	border-collapse: collapse;
+	width: $n_columns * $cell_width + $scroll_width;
+	position: relative;
+    border: 1px solid grey;
 
-    .data-table__head-row {
-        .data-table__head-cell {
-            text-align: left;
-            height: 50px;
-            padding: 0 15px;
-            border: 1px solid grey;
-        }
-    }
+	.data-table__head {
+		display: block;
 
-    .data-table__body {
-        .data-table__body-cell {
-            height: 40px;
+		th {
+			width: $cell_width;
+
+			&:last-of-type {
+				width: $cell_width + $scroll_width;
+			}
+		}
+	}
+
+	.data-table__head-row {
+		.data-table__head-cell {
+			text-align: left;
+			height: 50px;
+			padding: 0 15px;
+			border: 1px solid grey;
+		}
+	}
+
+	.data-table__body {
+		display: block;
+		height: 300px;
+		overflow-y: auto;
+		overflow-x: hidden;
+
+		.data-table__body-cell {
+			height: 40px;
             padding: 0 15px;
-            border: 1px solid grey;
-        }
-    }
+			border: 1px solid grey;
+            width: $cell_width;
+		}
+	}
 }
