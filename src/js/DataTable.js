@@ -8,7 +8,7 @@ export default class DataTable {
 	table_id;
 	table_element;
 	thead_element;
-    tbody_element;
+	tbody_element;
 	table_rows;
 
 	constructor(table_id, head_class) {
@@ -22,7 +22,7 @@ export default class DataTable {
 		let table_body = document.createElement('tbody');
 		table_body.setAttribute('class', TBODY_CLASS);
 
-        this.removeTbodyElement()
+		this.removeTbodyElement();
 
 		if (this.is_table_empty) {
 			const empty_row = this.createEmptyRow();
@@ -32,30 +32,40 @@ export default class DataTable {
 		}
 
 		this.table_element.appendChild(table_body);
-        this.tbody_element = table_body;
+		this.tbody_element = table_body;
 	}
 
 	async updateTableRows() {
-		const data = await ApiService.getData();
-		const rows = this.patchRowsFromData(data);
-		this.table_rows = rows;
-		this.is_table_empty = rows.length === 0;
+		try {
+			const people_ids = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+			const data = await Promise.all(
+				people_ids.map((id) => {
+					return ApiService.getPerson(id);
+				})
+			);
+			const rows = this.patchRowsFromData(data);
+			this.table_rows = rows;
+			this.is_table_empty = rows.length === 0;
+		} catch (err) {
+			this.clearTable();
+			console.log(err);
+		}
 	}
 
-    removeTbodyElement() {
-        if(this.tbody_element != undefined) {
-            this.tbody_element.remove()
-        }
-        this.tbody_element = null;
-    }
+	removeTbodyElement() {
+		if (this.tbody_element != undefined) {
+			this.tbody_element.remove();
+		}
+		this.tbody_element = null;
+	}
 
-    clearTable() {
-        this.removeTbodyElement()
-        this.is_table_empty = true
-        this.table_rows = null
+	clearTable() {
+		this.removeTbodyElement();
+		this.is_table_empty = true;
+		this.table_rows = null;
 
-        this.renderTableBody()
-    }
+		this.renderTableBody();
+	}
 
 	createEmptyRow() {
 		let empty_row = document.createElement('tr');
@@ -68,11 +78,11 @@ export default class DataTable {
 	patchRowsFromData(data) {
 		return data.map((data_obj) => {
 			return new DataRow(
-				data_obj.id,
 				data_obj.name,
-				data_obj.surname,
-				data_obj.nick,
-				data_obj.cock
+				data_obj.height,
+				data_obj.hair_color,
+				data_obj.eye_color,
+				data_obj.birth_year
 			);
 		});
 	}
