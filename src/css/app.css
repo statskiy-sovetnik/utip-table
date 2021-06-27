@@ -26,6 +26,7 @@ button {
   width: 1312px;
   position: relative;
   border: 1px solid grey;
+  margin-bottom: 20px;
 }
 .data-table .data-table__sort-icon {
   margin-left: 10px;
@@ -63,4 +64,15 @@ button {
   padding: 0 15px;
   border: 1px solid grey;
   width: 216px;
+}
+
+.pagination-block {
+  display: flex;
+}
+.pagination-block .pagination-btn {
+  margin-right: 5px;
+  border: 1px solid grey;
+}
+.pagination-block .pagination-btn.active {
+  border: 1px solid blue;
 }

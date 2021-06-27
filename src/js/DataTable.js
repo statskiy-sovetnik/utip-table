@@ -15,6 +15,10 @@ export default class DataTable {
 	tbody_element;
 	table_rows;
 
+	table_rows_limit;
+	pages_count;
+	current_page;
+
 	sort_direction; // DESC | ASC
 	sort_type; // name | height | hair_color | eye_color | birth_year
 	do_sort;
@@ -25,8 +29,13 @@ export default class DataTable {
 		this.thead_element = this.table_element.querySelector('.' + head_class);
 		this.is_data_loading = false;
 
-		this.table_rows = this.getTableRowsFromStorage()
-        this.is_table_empty = this.table_rows.length === 0
+		this.table_rows = this.getTableRowsFromStorage();
+
+		this.table_rows_limit = 8;
+		this.pages_count = this.countPages();
+		this.current_page = 1;
+
+		this.is_table_empty = this.table_rows.length === 0;
 	}
 
 	async renderTableBody() {
@@ -42,11 +51,53 @@ export default class DataTable {
 			const empty_row = this.createEmptyRow();
 			table_body.appendChild(empty_row);
 		} else {
-			table_body.append(...this.table_rows.map((row) => row.row_element));
+			table_body.append(
+				...this.getCurrentPageRows().map((row) => row.row_element)
+			);
 		}
+
+		this.renderPagination();
 
 		this.table_element.appendChild(table_body);
 		this.tbody_element = table_body;
+	}
+
+	renderPagination() {
+		let pagination_block = document.getElementById('main-table-pagination');
+		pagination_block.innerHTML = '';
+
+		if (this.pages_count === 1) {
+			return;
+		}
+
+		for (let i = 0; i < this.pages_count; i++) {
+			let i_btn = document.createElement('button');
+
+			const active_class = i + 1 === this.current_page ? ' active' : '';
+			i_btn.setAttribute('class', 'pagination-btn' + active_class);
+			i_btn.addEventListener('click', () => {
+				this.goToPage(i + 1);
+			});
+			i_btn.innerHTML = i + 1;
+
+			pagination_block.appendChild(i_btn);
+		}
+	}
+
+	goToPage(page) {
+		this.current_page = page;
+		this.renderTableBody();
+	}
+
+	countPages() {
+		return Math.ceil(this.table_rows.length / this.table_rows_limit);
+	}
+
+	getCurrentPageRows() {
+		const first_row_id = (this.current_page - 1) * this.table_rows_limit;
+		const last_row_id = first_row_id + this.table_rows_limit - 1;
+
+		return this.table_rows.slice(first_row_id, last_row_id + 1);
 	}
 
 	async updateTableRows() {
@@ -60,8 +111,11 @@ export default class DataTable {
 			const rows = this.patchRowsFromData(data);
 			this.table_rows = rows;
 			this.is_table_empty = rows.length === 0;
-            this.saveTableRowsToStorage()
 
+			this.pages_count = this.countPages();
+			this.current_page = 1;
+
+			this.saveTableRowsToStorage();
 		} catch (err) {
 			this.clearTable();
 			console.log(err);
@@ -74,11 +128,24 @@ export default class DataTable {
 		this.table_rows = this.table_rows.filter((row) => {
 			return row.id !== id;
 		});
+
 		if (this.table_rows.length === 0) {
 			this.clearTable();
 		}
 
-        this.saveTableRowsToStorage()
+		const rows_count = this.table_rows.length;
+
+		this.pages_count = this.countPages();
+		//Переход на предыдущую страницу, если удалили последнюю строку на последней странице
+		if (
+			rows_count % this.table_rows_limit === 0 &&
+			rows_count !== 0 &&
+			this.current_page !== this.pages_count
+		) {
+			this.current_page--;
+		}
+
+		this.saveTableRowsToStorage();
 		this.renderTableBody();
 	}
 
@@ -98,6 +165,9 @@ export default class DataTable {
 		this.sort_direction = null;
 		this.is_data_loading = false;
 		this.displaySortIcon();
+
+		this.current_page = 1;
+		this.pages_count = 1;
 
 		localStorage.removeItem('table-data');
 
@@ -249,20 +319,20 @@ export default class DataTable {
 		});
 	}
 
-    saveTableRowsToStorage() {
-        localStorage.setItem('table-data', JSON.stringify(this.table_rows))
-    }
+	saveTableRowsToStorage() {
+		localStorage.setItem('table-data', JSON.stringify(this.table_rows));
+	}
 
-    getTableRowsFromStorage() {
-        let table_rows = []
+	getTableRowsFromStorage() {
+		let table_rows = [];
 
-        if(localStorage.getItem('table-data')) {
-            const raw_data = JSON.parse(localStorage.getItem('table-data'))
-            table_rows = this.patchRowsFromData(raw_data) 
-        }
-        
-        return table_rows
-    }
+		if (localStorage.getItem('table-data')) {
+			const raw_data = JSON.parse(localStorage.getItem('table-data'));
+			table_rows = this.patchRowsFromData(raw_data);
+		}
+
+		return table_rows;
+	}
 
 	displayLoading(is_loading) {
 		this.is_data_loading = is_loading;
